@@ -1,0 +1,26 @@
+Resolved "preview" environment for the build. Learn more: https://docs.expo.dev/eas/environment-variables/#setting-the-environment-for-your-builds
+No environment variables with visibility "Plain text" and "Sensitive" found for the "preview" environment on EAS.
+
+
+
+ios.buildNumber field in app config is ignored when version source is set to remote, but this value will still be in the manifest available via expo-constants. It's recommended to remove this value from app config.
+✔ Using remote iOS credentials (Expo server)
+
+If you provide your Apple account credentials we will be able to generate all necessary build credentials and fully validate them.
+This is optional, but without Apple account access you will need to provide all the missing values manually and we can only run minimal validation on them.
+[?25l[2K[1G[36m?[39m [1mDo you want to log in to your Apple account?[22m [90m›[39m [90m(Y/n)[39m[2K[1G[2K[1G[32m✔[39m [1mDo you want to log in to your Apple account?[22m [90m…[39m yes
+[?25h
+› Log in to your Apple Developer account to continue
+[2K[1G[36m?[39m [1mApple ID:[22m [90m›[39m [90mnohjiyoung@hotmail.com[39m78[2K[1G[2K[1G[32m✔[39m [1mApple ID:[22m [90m…[39m nohjiyoung@hotmail.com78
+[?25h› Restoring session /Users/jiyoungnoh/.app-store/auth/nohjiyoung@hotmail.com/cookie
+› Session expired Local session
+(node:51426) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+› Using password for nohjiyoung@hotmail.com from your local Keychain
+  Learn more: https://docs.expo.dev/distribution/security#keychain
+- Logging in...
+✔ Logged in New session
+Authentication with Apple Developer Portal failed!
+You have no team associated with your Apple account, cannot proceed.
+(Do you have a paid Apple Developer account?)
+    Error: build command failed.

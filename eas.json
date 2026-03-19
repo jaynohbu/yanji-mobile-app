@@ -1,0 +1,47 @@
+{
+  "cli": {
+    "version": ">= 18.1.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "API_BASE": "http://localhost:3001",
+        "WEBVIEW_URL": "http://localhost:5173/dashboard",
+        "ENV": "development",
+        "DEMO_USER": "true",
+        "DEMO_USER_ID": "nohjiyoung@hotmail.com",
+        "DEMO_PASSWORD": "Yoomin10!",
+        "SQUARE_TERMINAL_DEVICE_ID": "145CS145A8001120"
+      }
+    },
+    "staging": {
+      "distribution": "internal",
+      "env": {
+        "API_BASE": "https://api.yanjirestaurant.com",
+        "WEBVIEW_URL": "https://yanjirestaurant.com/dashboard",
+        "ENV": "staging",
+        "DEMO_USER": "false"
+      }
+    },
+    "production": {
+      "distribution": "store",
+      "autoIncrement": true,
+      "env": {
+        "API_BASE": "https://api.yanjirestaurant.com",
+        "WEBVIEW_URL": "https://yanjirestaurant.com/dashboard",
+        "ENV": "production",
+        "DEMO_USER": "false"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "bundleIdentifier": "com.yanjirestaurant.app"
+      }
+    }
+  }
+}
