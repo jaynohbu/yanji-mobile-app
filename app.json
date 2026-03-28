@@ -61,7 +61,11 @@
       },
       "apiBase": "http://localhost:3001",
       "webviewUrl": "http://localhost:5173/dashboard",
-      "env": "development"
+      "env": "development",
+      "demoUser": true,
+      "demoUserId": "nohjiyoung@hotmail.com",
+      "demoPassword": "Yoomin10!",
+      "squareTerminalDeviceId": "145CS145A8001120"
     }
   }
 }

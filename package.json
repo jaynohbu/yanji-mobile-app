@@ -2,10 +2,10 @@
   "name": "yanji-react",
   "version": "1.0.0",
   "scripts": {
-    "start": "expo start",
+    "start": "node scripts/setup-dev-config.js && expo start",
     "reset-project": "node ./scripts/reset-project.js",
-    "android": "expo run:android",
-    "ios": "source .env.local && expo run:ios",
+    "android": "node scripts/setup-dev-config.js && expo run:android",
+    "ios": "node scripts/setup-dev-config.js && expo run:ios",
    
     "web": "expo start --web",
     "lint": "expo lint"

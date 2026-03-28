@@ -88,5 +88,17 @@
 	<string>Automatic</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>This app uses Bluetooth to connect with restaurant devices and services.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>This app uses Bluetooth to connect with restaurant devices and services.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Camera access is used to scan QR codes for orders and payments.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Microphone access is used for voice features in the app.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Location is used to find nearby restaurants and delivery options.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Photo library access is used to upload images for restaurant reviews and orders.</string>
 </dict>
 </plist>

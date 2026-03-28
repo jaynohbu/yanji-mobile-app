@@ -22,6 +22,8 @@ import {
   SafeAreaView,
   Alert,
   Platform,
+  AppState,
+  AppStateStatus,
 } from 'react-native';
 import { WebView, WebViewMessageEvent } from 'react-native-webview';
 import Constants from 'expo-constants';
@@ -51,13 +53,10 @@ export function HomeScreen() {
   const [maxRetries, setMaxRetries] = useState(5);
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTokenRef = useRef<string>('');
-  const lastActivityRef = useRef<number>(Date.now());
-  const inactivityTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const appStateRef = useRef<AppStateStatus>(AppState.currentState);
   const pollingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Constants for inactivity timeout
-  const INACTIVITY_THRESHOLD_MS = 10 * 60 * 1000; // 10 minutes
-  const CHECK_INTERVAL_MS = 30 * 1000; // Check every 30 seconds
+  // Constants for error retry
   const TOKEN_POLLING_INTERVAL_MS = 5 * 1000; // Poll for tokens every 5 seconds
   const MOBILE_APP_ACCESS_KEY = 'mobile-app-secret-key-2026'; // Should match env var in web
   const MAX_RETRIES = 5;
@@ -139,13 +138,79 @@ export function HomeScreen() {
     console.log('[HomeScreen] Token injected into WebView');
   }, [tokens.accessToken, tokens.idToken, tokens.expiry, escapeForJavaScript]);
 
-  // Reset inactivity timer on user activity
-  const resetInactivityTimer = useCallback(() => {
-    lastActivityRef.current = Date.now();
-    console.log('[HomeScreen] Activity detected, inactivity timer reset');
-  }, []);
+  // Inject demo credentials into login form when available (development only)
+  useEffect(() => {
+    if (!webViewRef.current) return;
 
-  // Retry loading with exponential backoff
+    const demoUser = Constants.expoConfig?.extra?.demoUser;
+    const demoUserId = Constants.expoConfig?.extra?.demoUserId;
+    const demoPassword = Constants.expoConfig?.extra?.demoPassword;
+
+    if (!demoUser || !demoUserId || !demoPassword) {
+      console.log('[HomeScreen] Demo credentials not configured');
+      return;
+    }
+
+    console.log('[HomeScreen] Injecting demo credentials into login form');
+
+    const escapedDemoUserId = escapeForJavaScript(demoUserId);
+    const escapedDemoPassword = escapeForJavaScript(demoPassword);
+
+    const injectionScript = `
+      (function() {
+        try {
+          // Wait for the login form to render
+          const tryInject = () => {
+            const usernameInput = document.querySelector('input[name="username"]') || 
+                                 document.querySelector('input[placeholder*="Username"]') ||
+                                 document.querySelector('input[placeholder*="Email"]') ||
+                                 document.querySelector('input[type="email"]') ||
+                                 document.querySelector('input[type="text"][id*="username"]') ||
+                                 document.querySelector('input[type="text"][id*="email"]');
+            const passwordInput = document.querySelector('input[name="password"]') || 
+                                 document.querySelector('input[placeholder*="Password"]') ||
+                                 document.querySelector('input[type="password"]');
+            
+            if (usernameInput && passwordInput) {
+              usernameInput.value = '${escapedDemoUserId}';
+              passwordInput.value = '${escapedDemoPassword}';
+              
+              // Trigger input events to update React state
+              usernameInput.dispatchEvent(new Event('input', { bubbles: true }));
+              usernameInput.dispatchEvent(new Event('change', { bubbles: true }));
+              passwordInput.dispatchEvent(new Event('input', { bubbles: true }));
+              passwordInput.dispatchEvent(new Event('change', { bubbles: true }));
+              
+              console.log('[YanjiAuth] Demo credentials injected into login form');
+              window.ReactNativeWebView?.postMessage(JSON.stringify({
+                type: 'debug',
+                data: 'Demo credentials pre-filled'
+              }));
+              return true;
+            } else {
+              // Retry after short delay if form not ready yet
+              if (document.readyState === 'loading') {
+                setTimeout(tryInject, 500);
+              } else {
+                // Try one more time after a longer delay
+                setTimeout(tryInject, 1000);
+              }
+            }
+          };
+          
+          tryInject();
+        } catch (e) {
+          console.error('[YanjiAuth] Demo credential injection error:', e);
+        }
+      })();
+      true;
+    `;
+
+    webViewRef.current.injectJavaScript(injectionScript);
+  }, [escapeForJavaScript]);
+
+  // Reset inactivity timer on user activity
+
   const retryLoad = useCallback(() => {
     if (retryCount >= MAX_RETRIES) {
       console.error('[WebView] Max retries reached, giving up');
@@ -195,7 +260,8 @@ export function HomeScreen() {
           console.log(`[WebView Debug ${timestamp}]`, message.data);
           break;
         case 'activity':
-          resetInactivityTimer();
+          // Activity detected - app is in use (no action needed)
+          console.log('[HomeScreen] User activity detected');
           break;
         case 'error':
           console.error(`[WebView Error ${timestamp}]`, message.data);
@@ -241,7 +307,7 @@ export function HomeScreen() {
     } catch (error) {
       console.log('[WebView] Raw message:', event.nativeEvent.data);
     }
-  }, [resetInactivityTimer]);
+  }, []);
 
   // Setup token injection interceptor for all requests
   const setupTokenInterceptor = `
@@ -289,62 +355,28 @@ export function HomeScreen() {
     true;
   `;
 
-  // Setup inactivity timeout to reload page after 10 minutes
+  // Listen for app state changes (foreground/background) to reload when app wakes from sleep
   useEffect(() => {
-    // Start inactivity check interval
-    const checkInactivity = () => {
-      const timeSinceActivity = Date.now() - lastActivityRef.current;
-      if (timeSinceActivity > INACTIVITY_THRESHOLD_MS) {
-        console.log('[HomeScreen] Inactivity detected (>10 min), reloading page');
-        if (webViewRef.current) {
-          webViewRef.current.reload();
-          // Reset timer after reload
-          lastActivityRef.current = Date.now();
-        }
-      }
-    };
-
-    inactivityTimerRef.current = setInterval(checkInactivity, CHECK_INTERVAL_MS);
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
 
     return () => {
-      if (inactivityTimerRef.current) {
-        clearInterval(inactivityTimerRef.current);
-      }
+      subscription.remove();
     };
   }, []);
 
-  // Inject activity listener to WebView
-  useEffect(() => {
-    if (!webViewRef.current) return;
+  const handleAppStateChange = useCallback((nextAppState: AppStateStatus) => {
+    // Check if app is transitioning from background to foreground
+    if (appStateRef.current !== 'active' && nextAppState === 'active') {
+      console.log('[HomeScreen] App came to foreground, reloading WebView');
+      if (webViewRef.current) {
+        webViewRef.current.reload();
+      }
+    }
 
-    const activityListenerScript = `
-      (function() {
-        try {
-          // Listen for user interactions in the webpage
-          const resetActivity = () => {
-            window.ReactNativeWebView?.postMessage(JSON.stringify({
-              type: 'activity',
-              data: 'User activity detected'
-            }));
-          };
-
-          // Track various user interactions
-          document.addEventListener('click', resetActivity, true);
-          document.addEventListener('touchstart', resetActivity, true);
-          document.addEventListener('keydown', resetActivity, true);
-          document.addEventListener('scroll', resetActivity, true);
-          document.addEventListener('mousemove', resetActivity, true);
-
-          console.log('[YanjiAuth] Activity listeners installed');
-        } catch (e) {
-          console.error('[YanjiAuth] Activity listener error:', e);
-        }
-      })();
-      true;
-    `;
-
-    webViewRef.current.injectJavaScript(activityListenerScript);
+    appStateRef.current = nextAppState;
   }, []);
+
+
 
   // Poll for tokens from backend API (DISABLED - tokens managed by AuthContext)
   // useEffect(() => {
