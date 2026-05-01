@@ -6,7 +6,7 @@
     "reset-project": "node ./scripts/reset-project.js",
     "android": "node scripts/setup-dev-config.js && expo run:android",
     "ios": "node scripts/setup-dev-config.js && expo run:ios",
-   
+    "deploy-ios": "./deploy-ios.sh",
     "web": "expo start --web",
     "lint": "expo lint"
   },
