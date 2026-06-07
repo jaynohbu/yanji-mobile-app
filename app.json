@@ -3,6 +3,7 @@
     "name": "Yanji Restaurant",
     "slug": "yanji-app",
     "version": "1.0.0",
+    "description": "Restaurant management and ordering platform for restaurant staff, managers, and partners. Access via direct link only.",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "yanjireact",
@@ -59,10 +60,10 @@
       "eas": {
         "projectId": "5dd32043-7957-429c-b5c5-b5156aa612d8"
       },
-      "apiBase": "https://api.yanjirestaurant.com",
-      "webviewUrl": "https://yanjirestaurant.com/dashboard",
-      "env": "production",
-      "demoUser": false,
+      "apiBase": "http://localhost:3001",
+      "webviewUrl": "http://localhost:5173/dashboard",
+      "env": "development",
+      "demoUser": true,
       "demoUserId": "nohjiyoung@hotmail.com",
       "demoPassword": "Yoomin10!",
       "squareTerminalDeviceId": "145CS145A8001120"
