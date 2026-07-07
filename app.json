@@ -2,7 +2,7 @@
   "expo": {
     "name": "Yanji Restaurant",
     "slug": "yanji-app",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Restaurant management and ordering platform for restaurant staff, managers, and partners. Access via direct link only.",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",

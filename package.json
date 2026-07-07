@@ -1,6 +1,6 @@
 {
   "name": "yanji-react",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
     "start": "node scripts/setup-dev-config.js && expo start",
     "reset-project": "node ./scripts/reset-project.js",
