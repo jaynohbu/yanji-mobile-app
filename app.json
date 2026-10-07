@@ -2,7 +2,7 @@
   "expo": {
     "name": "Yanji Restaurant",
     "slug": "yanji-app",
-    "version": "1.0.1",
+    "version": "1.0.4",
     "description": "Restaurant management and ordering platform for restaurant staff, managers, and partners. Access via direct link only.",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -64,8 +64,6 @@
       "webviewUrl": "https://yanjirestaurant.com/dashboard",
       "env": "production",
       "demoUser": false,
-      "demoUserId": "nohjiyoung@hotmail.com",
-      "demoPassword": "Yoomin10!",
       "squareTerminalDeviceId": "145CS145A8001120"
     }
   }

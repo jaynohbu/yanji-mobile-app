@@ -58,7 +58,6 @@ export function HomeScreen() {
 
   // Constants for error retry
   const TOKEN_POLLING_INTERVAL_MS = 5 * 1000; // Poll for tokens every 5 seconds
-  const MOBILE_APP_ACCESS_KEY = 'mobile-app-secret-key-2026'; // Should match env var in web
   const MAX_RETRIES = 5;
   const INITIAL_RETRY_DELAY_MS = 2000; // 2 seconds
   const MAX_RETRY_DELAY_MS = 30000; // 30 seconds

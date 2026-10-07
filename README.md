@@ -2,6 +2,25 @@
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
+## iOS release version
+
+The iOS, Expo, and npm package version is **1.0.4**.
+Keep `app.json`, the iOS `Info.plist`, Xcode `MARKETING_VERSION`, and package
+metadata in sync when updating the release version. Production EAS builds manage
+and increment the build number remotely.
+
+Run `npm run deploy-ios` to build the production iOS app and automatically schedule
+its submission to App Store Connect. EAS and Apple credentials must already be
+configured for non-interactive builds and submissions. Check the EAS submission
+status before expecting the build in TestFlight; public release still requires
+App Store review.
+
+Demo login credentials are not stored in the checked-in app configuration.
+Local development can supply them through `.env.local` and the development setup
+script. `.easignore` excludes local environment files, logs, and documentation
+from build uploads. Do not deploy an `app.json` rewritten with development
+settings or credentials.
+
 ## Get started
 
 1. Install dependencies

@@ -7,13 +7,15 @@
 # Distribution: App Store (production)
 ################################################################################
 
-set -e
+set -euo pipefail
+
+cd "$(dirname "$0")"
+export EXPO_NO_DOTENV=1
 
 # Configuration
 BUNDLE_ID="com.yanjirestaurant.app"
 PROFILE="production"
 PLATFORM="ios"
-BUILD_DIR="."
 
 # Colors for output
 RED='\033[0;31m'
@@ -36,8 +38,8 @@ echo -e "${YELLOW}[1/4] Checking prerequisites...${NC}"
 # Check if eas-cli is installed
 if ! command -v eas &> /dev/null; then
     echo -e "${RED}✗ EAS CLI not found${NC}"
-    echo "Installing EAS CLI..."
-    npm install -g eas-cli
+    echo "Install eas-cli before deploying."
+    exit 1
 fi
 echo -e "${GREEN}✓ EAS CLI available${NC}"
 
@@ -47,6 +49,15 @@ if ! eas whoami &> /dev/null 2>&1; then
     eas login
 fi
 echo -e "${GREEN}✓ EAS authenticated${NC}"
+node <<'NODE'
+const assert = require('node:assert/strict');
+const { getConfig } = require('@expo/config');
+const { extra } = getConfig(process.cwd()).exp;
+assert.equal(extra.env, 'production', 'Deployment requires production configuration');
+assert.equal(extra.demoUser, false, 'Demo login must be disabled for deployment');
+assert.equal(extra.demoUserId, undefined, 'Remove demo login ID before deployment');
+assert.equal(extra.demoPassword, undefined, 'Remove demo password before deployment');
+NODE
 echo ""
 
 # Step 2: Install dependencies
@@ -61,44 +72,20 @@ echo ""
 
 # Step 3: Build iOS app for production
 echo -e "${YELLOW}[3/4] Building iOS app for production...${NC}"
-echo -e "${BLUE}Running: eas build --platform $PLATFORM --profile $PROFILE${NC}"
+echo -e "${BLUE}Running: eas build --platform $PLATFORM --profile $PROFILE --auto-submit --wait --non-interactive${NC}"
 echo ""
 
-BUILD_OUTPUT=$(eas build --platform "$PLATFORM" --profile "$PROFILE" 2>&1)
-BUILD_ID=$(echo "$BUILD_OUTPUT" | grep -oP 'Build ID: \K[^ ]*' | head -1)
+eas build --platform "$PLATFORM" --profile "$PROFILE" --auto-submit --wait --non-interactive
 
-if [ -z "$BUILD_ID" ]; then
-    echo -e "${RED}✗ Failed to get build ID${NC}"
-    echo "$BUILD_OUTPUT"
-    exit 1
-fi
-
-echo -e "${GREEN}✓ Build submitted${NC}"
-echo -e "${BLUE}Build ID: $BUILD_ID${NC}"
-echo ""
-
-# Step 4: Submit to App Store
-echo -e "${YELLOW}[4/4] Submitting to App Store...${NC}"
-echo -e "${BLUE}Running: eas submit --platform $PLATFORM --build-id $BUILD_ID${NC}"
-echo ""
-
-SUBMIT_OUTPUT=$(eas submit --platform "$PLATFORM" --build-id "$BUILD_ID" 2>&1)
-echo "$SUBMIT_OUTPUT"
-
-if echo "$SUBMIT_OUTPUT" | grep -q "successfully"; then
-    echo -e "${GREEN}✓ Successfully submitted to App Store${NC}"
-    echo -e "${GREEN}Build ID: $BUILD_ID${NC}"
-else
-    echo -e "${YELLOW}⚠ Check submission status manually${NC}"
-fi
+echo -e "${YELLOW}[4/4] Build finished; check the scheduled submission in EAS.${NC}"
 
 echo ""
 echo -e "${GREEN}========================================${NC}"
-echo -e "${GREEN}Deployment Complete!${NC}"
+echo -e "${GREEN}Build Complete - Submission Scheduled${NC}"
 echo -e "${GREEN}========================================${NC}"
 echo ""
 echo -e "${BLUE}Next steps:${NC}"
-echo "1. Monitor build progress: eas build --status --build-id $BUILD_ID"
+echo "1. Check build and submission status using the EAS links above."
 echo "2. Check App Store Connect: https://appstoreconnect.apple.com"
 echo "3. Review submission and submit for review"
 echo ""

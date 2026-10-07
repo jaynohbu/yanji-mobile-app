@@ -12,8 +12,6 @@
         "WEBVIEW_URL": "http://localhost:5173/dashboard",
         "ENV": "development",
         "DEMO_USER": "true",
-        "DEMO_USER_ID": "nohjiyoung@hotmail.com",
-        "DEMO_PASSWORD": "Yoomin10!",
         "SQUARE_TERMINAL_DEVICE_ID": "145CS145A8001120"
       }
     },
@@ -40,6 +38,7 @@
   "submit": {
     "production": {
       "ios": {
+        "ascAppId": "6760384036",
         "bundleIdentifier": "com.yanjirestaurant.app"
       }
     }
